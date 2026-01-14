@@ -1,7 +1,7 @@
 {% extends "layouts/main.html" %}
 
 {% block pageTitle %}
-  Question page template – {{ serviceName }} – GOV.UK Prototype Kit
+  {{ serviceName }} – Personal contact detail
 {% endblock %}
 
 {% block beforeContent %}
@@ -20,41 +20,46 @@
         Provide your Contact Details
       </h1>
 
-      <form class="form" action="/path/of/next/page" method="post">
+      <form class="form" action="/business.html" method="post">
 
         {% from "govuk/components/input/macro.njk" import govukInput %}
 
-        {{ govukInput({
-          label: {
-            text: "What is your legal name?"
-          },
-          id: "legal-name",
-          name: "legalName"
-        }) }}
 
-        {{ govukInput({
-          label: {
-            text: "What is your email address?"
-          },
-          id: "email-address",
-          name: "emailAddress"
-        }) }}
+          {{ govukInput({
+            label: {
+              text: "Full name"
+            },
+            id: "full-name",
+            name: "fullName",
+            autocomplete: "name",
+            spellcheck: false
+          }) }}
 
-        {{ govukInput({
-          label: {
-            text: "What is your telephone number?"
-          },
-          id: "telephone-num",
-          name: "telephoneNum"
-        }) }}
+          {{ govukInput({
+            label: {
+              text: "UK phone number"
+            },
+            id: "phone-number",
+            name: "phoneNumber",
+            type: "tel",
+            autocomplete: "tel",
+            classes: "govuk-input--width-20"
+          }) }}
 
-        {{ govukInput({
-          label: {
-            text: "What is your address?"
-          },
-          id: "address",
-          name: "address"
-        }) }}
+          {{ govukInput({
+            label: {
+              text: "Email address"
+            },
+            hint: {
+              text: "We’ll only use this to send you a receipt"
+            },
+            id: "email",
+            name: "email",
+            type: "email",
+            autocomplete: "email",
+            spellcheck: false
+          }) }}
+
 
         {{ govukButton({
           text: "Continue"
