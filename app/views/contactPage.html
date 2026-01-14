@@ -1,0 +1,68 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  Question page template – {{ serviceName }} – GOV.UK Prototype Kit
+{% endblock %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+  text: "Back",
+  href: "javascript:window.history.back()"
+}) }}
+{% endblock %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <h1 class="govuk-heading-l">
+        Provide your Contact Details
+      </h1>
+
+      <form class="form" action="/path/of/next/page" method="post">
+
+        {% from "govuk/components/input/macro.njk" import govukInput %}
+
+        {{ govukInput({
+          label: {
+            text: "What is your legal name?"
+          },
+          id: "legal-name",
+          name: "legalName"
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "What is your email address?"
+          },
+          id: "email-address",
+          name: "emailAddress"
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "What is your telephone number?"
+          },
+          id: "telephone-num",
+          name: "telephoneNum"
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "What is your address?"
+          },
+          id: "address",
+          name: "address"
+        }) }}
+
+        {{ govukButton({
+          text: "Continue"
+        }) }}
+
+      </form>
+
+    </div>
+  </div>
+
+{% endblock %}
