@@ -1,0 +1,96 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  {{ serviceName }} – Is the property linked to the National Grid?
+{% endblock %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+  text: "Back",
+  href: "javascript:window.history.back()"
+}) }}
+{% endblock %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <form class="form" action="/nationalGrid" method="post">
+
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+
+{% set nationalGrid %}
+  {{ govukInput({
+    id: "national-grid-ref",
+    name: "NationalGridRef",
+    type: "text",
+    autocomplete: "off",
+    spellcheck: false,
+    classes: "govuk-!-width-one-third",
+    value: data.NationalGridRef or "",
+    label: {
+      text: "National Grid Reference Number, e.g. NZ 123456 or TQ298804"
+    },
+    attributes: {
+      pattern: "^[A-Za-z]{2}\\s*\\d{6}$"
+    }
+  }) }}
+{% endset %}
+
+{% set textHtml %}
+{{ govukInput({
+  id: "contact-by-text",
+  name: "contactByText",
+  type: "tel",
+  autocomplete: "tel",
+  classes: "govuk-!-width-one-third",
+  value: data.contactByText or "",
+  label: {
+    text: "Mobile phone number"
+  }
+}) }}
+{% endset -%}
+
+{{ govukRadios({
+  name: "contact",
+  fieldset: {
+    legend: {
+      text: "Is the property linked to the national grid?",
+      isPageHeading: true,
+      classes: "govuk-fieldset__legend--l"
+    }
+  },
+  hint: {
+    text: "Select one option"
+  },
+  value: data.contact,
+  items: [
+    {
+      value: "yes",
+      text: "Yes",
+      conditional: {
+        html: nationalGrid
+      }
+    },
+    {
+      value: "no",
+      text: "No"
+    }
+  ],
+  errorMessage: {
+    text: data.contactError
+  } if data.contactError else undefined
+}) }}
+
+        {{ govukButton({
+          text: "Continue"
+        }) }}
+
+      </form>
+
+    </div>
+  </div>
+
+{% endblock %}

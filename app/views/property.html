@@ -17,30 +17,11 @@
     <div class="govuk-grid-column-two-thirds">
 
 
-      <form class="form" action="/path/of/next/page" method="post">
+      <form class="form" action="/property" method="post">
 
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 
-        {{ govukRadios({
-          name: "gridConnectivity",
-          fieldset: {
-            legend: {
-              text: "Is the property connected to the National Grid?",
-              isPageHeading: true,
-              classes: "govuk-fieldset__legend--l"
-            }
-          },
-          items: [
-            {
-              value: "yes",
-              text: "Yes"
-            },
-            {
-              value: "no",
-              text: "No"
-            }
-          ]
-        }) }}
+
 
         {{ govukRadios({
           name: "ownership",
@@ -51,6 +32,7 @@
               classes: "govuk-fieldset__legend--l"
             }
           },
+          value: data.ownership,
           items: [
             {
               value: "yes",
@@ -60,29 +42,12 @@
               value: "no",
               text: "No"
             }
-          ]
+          ],
+          errorMessage: {
+            text: data.ownershipError
+          } if data.ownershipError else undefined
         }) }}
 
-        {{ govukRadios({
-          name: "freeLand",
-          fieldset: {
-            legend: {
-              text: "Is there more than 200 acres of free land on the property?",
-              isPageHeading: true,
-              classes: "govuk-fieldset__legend--l"
-            }
-          },
-          items: [
-            {
-              value: "yes",
-              text: "Yes"
-            },
-            {
-              value: "no",
-              text: "No"
-            }
-          ]
-        }) }}
 
         {{ govukButton({
           text: "Continue"

@@ -16,9 +16,9 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
 
-      <form class="form" action="/business.html" method="post">
+      <form class="form" action="/address" method="post">
 
-      {% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
 
 {% call govukFieldset({
@@ -31,19 +31,24 @@
 
   {{ govukInput({
     label: {
-      text: "Address line 1"
+      text: 'Address line 1'
     },
     id: "address-line-1",
     name: "addressLine1",
+    value: data.addressLine1 or "",
+    errorMessage: {
+      text: data.addressLine1Error
+    } if data.addressLine1Error else undefined,
     autocomplete: "address-line1"
   }) }}
 
   {{ govukInput({
     label: {
-      text: "Address line 2 (optional)"
+      text: 'Address line 2 (optional)'
     },
     id: "address-line-2",
     name: "addressLine2",
+    value: data.addressLine2 or "",
     autocomplete: "address-line2"
   }) }}
 
@@ -54,6 +59,10 @@
     classes: "govuk-!-width-two-thirds",
     id: "address-town",
     name: "addressTown",
+    value: data.addressTown or "",
+    errorMessage: {
+      text: data.addressTownError
+    } if data.addressTownError else undefined,
     autocomplete: "address-level2"
   }) }}
 
@@ -63,7 +72,8 @@
     },
     classes: "govuk-!-width-two-thirds",
     id: "address-county",
-    name: "addressCounty"
+    name: "addressCounty",
+    value: data.addressCounty or ""
   }) }}
 
   {{ govukInput({
@@ -73,8 +83,16 @@
     classes: "govuk-input--width-10",
     id: "address-postcode",
     name: "addressPostcode",
+    value: data.addressPostcode or "",
+    errorMessage: {
+      text: data.addressPostcodeError
+    } if data.addressPostcodeError else undefined,
     autocomplete: "postal-code"
   }) }}
+
+
+
+  
 
 {% endcall %}
 

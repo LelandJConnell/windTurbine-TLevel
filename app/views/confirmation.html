@@ -1,0 +1,45 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  {{ serviceName }} – Application submitted
+{% endblock %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      {% from "govuk/components/panel/macro.njk" import govukPanel %}
+
+{% set random = (range(100000, 999999) | random) %}
+{% set referenceNumber = "WTAG" + random %}
+
+{{ govukPanel({
+  titleText: "Application submitted",
+  html: "Your reference number is <strong>" + referenceNumber + "</strong>"
+}) }}
+
+      <p>
+        We have sent you a confimration email.
+      </p>
+
+
+      <h2 class="govuk-heading-m">What happens next</h2>
+      <p>
+        We've sent your application to Hackney Electoral Register Office.
+      </p>
+      <p>
+        They will contact you either to confirm your registration, or to ask for more information.
+      </p>
+
+      {% from "govuk/components/button/macro.njk" import govukButton %}
+
+      {{ govukButton({
+        text: "Return to GOV.UK",
+        href: "https://www.gov.uk/"
+      }) }}
+
+    </div>
+  </div>
+
+{% endblock %}

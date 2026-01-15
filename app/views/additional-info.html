@@ -1,0 +1,111 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  {{ serviceName }} – Available space and commitment
+{% endblock %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: "Back",
+    href: "javascript:window.history.back()"
+  }) }}
+{% endblock %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <form class="form" action="/additional-info" method="post" id="additional-info-form">
+
+        {% from "govuk/components/input/macro.njk" import govukInput %}
+        {% from "govuk/components/radios/macro.njk" import govukRadios %}
+        {% from "govuk/components/textarea/macro.njk" import govukTextarea %}
+        {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+        {{ govukInput({
+          label: {
+            text: "Available space (in square feet)",
+            classes: "govuk-label--l"
+          },
+          hint: {
+            text: "Enter the total available space where the wind turbine could be installed. Minimum 200 sq ft required."
+          },
+          id: "available-space",
+          name: "availableSpace",
+          value: data.availableSpace,
+          type: "number",
+          inputmode: "numeric",
+          attributes: {
+            required: true,
+            min: "200"
+          },
+          errorMessage: data.availableSpaceError and {
+            text: data.availableSpaceError
+          }
+        }) }}
+
+
+        {{ govukInput({
+          label: {
+            text: "How many wind turbines do you want to install?",
+            classes: "govuk-label--m"
+          },
+          hint: {
+            text: "The number of turbines cannot exceed the maximum for your available space"
+          },
+          id: "turbine-number",
+          name: "turbineNumber",
+          value: data.turbineNumber,
+          type: "number",
+          inputmode: "numeric",
+          attributes: {
+            required: true,
+            min: "1"
+          },
+          errorMessage: data.turbineNumberError and {
+            text: data.turbineNumberError
+          }
+        }) }}
+
+        {{ govukRadios({
+          name: "commitment",
+          fieldset: {
+            legend: {
+              text: "Do you agree to maintain the wind turbine for 20 years?",
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
+            }
+          },
+          hint: {
+            text: "This is a requirement for the grant. The turbine must be maintained and operational."
+          },
+          value: data.commitment,
+          items: [
+            {
+              value: "yes",
+              text: "Yes"
+            },
+            {
+              value: "no",
+              text: "No"
+            }
+          ],
+          errorMessage: data.commitmentError and {
+            text: data.commitmentError
+          }
+        }) }}
+
+
+        {{ govukButton({
+          text: "Continue"
+        }) }}
+
+      </form>
+
+    </div>
+  </div>
+
+
+
+{% endblock %}

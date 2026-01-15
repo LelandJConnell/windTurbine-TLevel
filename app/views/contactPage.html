@@ -20,7 +20,7 @@
         Provide your Contact Details
       </h1>
 
-      <form class="form" action="/business.html" method="post">
+      <form class="form" action="/contactPage" method="post">
 
         {% from "govuk/components/input/macro.njk" import govukInput %}
 
@@ -32,7 +32,14 @@
             id: "full-name",
             name: "fullName",
             autocomplete: "name",
-            spellcheck: false
+            spellcheck: false,
+            value: data.fullName or "",
+            attributes: {
+                required: true
+              },
+            errorMessage: {
+              text: data.fullNameError
+            } if data.fullNameError else undefined
           }) }}
 
           {{ govukInput({
@@ -43,7 +50,16 @@
             name: "phoneNumber",
             type: "tel",
             autocomplete: "tel",
-            classes: "govuk-input--width-20"
+            classes: "govuk-input--width-20",
+            value: data.phoneNumber or "",
+            attributes: {
+              pattern: "^[0-9]{11}$",
+              title: "Please enter a valid phone number",
+              required : true
+            },
+            errorMessage: {
+              text: data.phoneNumberError
+            } if data.phoneNumberError else undefined
           }) }}
 
           {{ govukInput({
@@ -51,13 +67,20 @@
               text: "Email address"
             },
             hint: {
-              text: "We’ll only use this to send you a receipt"
+              text: "This contact will be used to comunicate with you"
             },
             id: "email",
             name: "email",
             type: "email",
             autocomplete: "email",
-            spellcheck: false
+            spellcheck: false,
+            value: data.email or "",
+            attributes: {
+              required: true
+            },
+            errorMessage: {
+              text: data.emailError
+            } if data.emailError else undefined
           }) }}
 
 

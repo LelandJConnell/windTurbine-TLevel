@@ -1,0 +1,268 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  {{ serviceName }} – Check your answers
+{% endblock %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: "Back",
+    href: "javascript:window.history.back()"
+  }) }}
+{% endblock %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <h1 class="govuk-heading-l">
+        Check your answers
+      </h1>
+
+      {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: {
+              text: "Full name"
+            },
+            value: {
+              text: data.fullName
+            },
+            actions: {
+              items: [
+                {
+                  href: "/contactPage",
+                  text: "Change",
+                  visuallyHiddenText: "full name"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Phone number"
+            },
+            value: {
+              text: data.phoneNumber
+            },
+            actions: {
+              items: [
+                {
+                  href: "/contactPage",
+                  text: "Change",
+                  visuallyHiddenText: "phone number"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Email address"
+            },
+            value: {
+              text: data.email
+            },
+            actions: {
+              items: [
+                {
+                  href: "/contactPage",
+                  text: "Change",
+                  visuallyHiddenText: "email address"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Address line 1"
+            },
+            value: {
+              text: data.addressLine1
+            },
+            actions: {
+              items: [
+                {
+                  href: "/address",
+                  text: "Change",
+                  visuallyHiddenText: "address line 1"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Town or city"
+            },
+            value: {
+              text: data.addressTown
+            },
+            actions: {
+              items: [
+                {
+                  href: "/address",
+                  text: "Change",
+                  visuallyHiddenText: "town or city"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Postcode"
+            },
+            value: {
+              text: data.addressPostcode
+            },
+            actions: {
+              items: [
+                {
+                  href: "/address",
+                  text: "Change",
+                  visuallyHiddenText: "postcode"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Property linked to national grid"
+            },
+            value: {
+              text: "Yes" if data.contact === 'yes' else "No"
+            },
+            actions: {
+              items: [
+                {
+                  href: "/nationalGrid",
+                  text: "Change",
+                  visuallyHiddenText: "national grid connection"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Business owned by you"
+            },
+            value: {
+              text: "Yes" if data.businessOwnership === 'yes' else "No"
+            },
+            actions: {
+              items: [
+                {
+                  href: "/business",
+                  text: "Change",
+                  visuallyHiddenText: "business ownership"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Property owned by business"
+            },
+            value: {
+              text: "Yes" if data.ownership === 'yes' else "No"
+            },
+            actions: {
+              items: [
+                {
+                  href: "/property",
+                  text: "Change",
+                  visuallyHiddenText: "property ownership"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Available space (sq ft)"
+            },
+            value: {
+              text: data.availableSpace
+            },
+            actions: {
+              items: [
+                {
+                  href: "/additional-info",
+                  text: "Change",
+                  visuallyHiddenText: "available space"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Number of turbines"
+            },
+            value: {
+              text: data.turbineNumber
+            },
+            actions: {
+              items: [
+                {
+                  href: "/additional-info",
+                  text: "Change",
+                  visuallyHiddenText: "number of turbines"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "20-year maintenance commitment"
+            },
+            value: {
+              text: "Yes" if data.commitment === 'yes' else "No"
+            },
+            actions: {
+              items: [
+                {
+                  href: "/additional-info",
+                  text: "Change",
+                  visuallyHiddenText: "maintenance commitment"
+                }
+              ]
+            }
+          },
+          {
+            key: {
+              text: "Installation date"
+            },
+            value: {
+              text: data['installationDate-day'] + " " + data['installationDate-month'] + " " + data['installationDate-year']
+            },
+            actions: {
+              items: [
+                {
+                  href: "/date-selection",
+                  text: "Change",
+                  visuallyHiddenText: "installation date"
+                }
+              ]
+            }
+          }
+        ]
+      }) }}
+
+      <h2 class="govuk-heading-m">
+        Now send your application
+      </h2>
+
+      <p>
+        By submitting this application you are confirming that, to the best of your knowledge, the details you are providing are correct.
+      </p>
+
+      <form method="post" action="/check-answers">
+        {{ govukButton({
+          text: "Accept and send"
+        }) }}
+      </form>
+
+    </div>
+  </div>
+
+{% endblock %}

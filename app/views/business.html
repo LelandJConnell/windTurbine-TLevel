@@ -16,11 +16,8 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
 
-      <h1 class="govuk-heading-l">
-        Business information
-      </h1>
 
-      <form class="form" action="/property.html" method="post">
+      <form class="form" action="/business" method="post">
 
         {{ govukRadios({
           name: "businessOwnership",
@@ -31,6 +28,7 @@
               classes: "govuk-fieldset__legend--l"
             }
           },
+          value: data.businessOwnership,
           items: [
             {
               value: "yes",
@@ -40,7 +38,10 @@
               value: "no",
               text: "No"
             }
-          ]
+          ],
+          errorMessage: {
+            text: data.businessOwnershipError
+          } if data.businessOwnershipError else undefined
         }) }}
 
         {{ govukButton({

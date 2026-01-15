@@ -1,0 +1,173 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+  {{ serviceName }} – Proposed installation date
+{% endblock %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: "Back",
+    href: "javascript:window.history.back()"
+  }) }}
+{% endblock %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <form class="form" action="/date-selection" method="post">
+
+        {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+
+        {{ govukDateInput({
+          id: "installation-date",
+          namePrefix: "installationDate",
+          fieldset: {
+            legend: {
+              text: "When can the wind turbine be assembled from?",
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
+            }
+          },
+          hint: {
+            text: "For example, 31 3 2026"
+          },
+          items: [
+            {
+              name: "day",
+              value: data.installationDateDay,
+              classes: "govuk-input--width-2"
+            },
+            {
+              name: "month",
+              value: data.installationDateMonth,
+              classes: "govuk-input--width-2"
+            },
+            {
+              name: "year",
+              value: data.installationDateYear,
+              classes: "govuk-input--width-4"
+            }
+          ],
+          errorMessage: {
+            text: data.dateError
+          } if data.dateError else undefined
+        }) }}
+
+        {{ govukButton({
+          text: "Continue to summary"
+        }) }}
+
+      </form>
+
+    </div>
+  </div>
+
+  <script>
+    const form = document.querySelector('.form');
+
+    const holidays = [
+      { month: 1, day: 1 },     // New Year's Day
+      { month: 12, day: 25 },   // Christmas Day
+      { month: 12, day: 26 },   // Boxing Day
+      { month: 4, day: 25 },    // ANZAC Day
+      { month: 5, day: 5 },     // Early May Bank Holiday
+      { month: 8, day: 29 },    // Summer Bank Holiday
+      { month: 10, day: 31 }    // Halloween
+    ];
+
+    function isHoliday(day, month) {
+      return holidays.some(holiday => holiday.day === day && holiday.month === month);
+    }
+
+    function isWeekend(day, month, year) {
+      const date = new Date(year, month - 1, day);
+      const dayOfWeek = date.getDay();
+      return dayOfWeek === 0 || dayOfWeek === 6;
+    }
+
+    function getErrorElement() {
+      let errorElement = document.querySelector('.govuk-date-input__error');
+      if (!errorElement) {
+        errorElement = document.createElement('div');
+        errorElement.className = 'govuk-error-message govuk-date-input__error';
+        errorElement.setAttribute('id', 'installation-date-error');
+        const dateInput = document.getElementById('installation-date');
+        dateInput.parentNode.insertBefore(errorElement, dateInput);
+      }
+      return errorElement;
+    }
+
+    function clearError() {
+      const errorElement = document.querySelector('.govuk-date-input__error');
+      if (errorElement) {
+        errorElement.remove();
+      }
+      const dateInput = document.getElementById('installation-date');
+      dateInput.classList.remove('govuk-date-input--error');
+      const inputs = dateInput.querySelectorAll('input');
+      inputs.forEach(input => input.classList.remove('govuk-input--error'));
+    }
+
+    function showError(message) {
+      clearError();
+      const errorElement = getErrorElement();
+      errorElement.innerHTML = '<span class="govuk-visually-hidden">Error:</span> ' + message;
+      const dateInput = document.getElementById('installation-date');
+      dateInput.classList.add('govuk-date-input--error');
+      const inputs = dateInput.querySelectorAll('input');
+      inputs.forEach(input => input.classList.add('govuk-input--error'));
+    }
+
+    form.addEventListener('submit', function(event) {
+      const dayInput = document.querySelector('input[name="installationDate-day"]');
+      const monthInput = document.querySelector('input[name="installationDate-month"]');
+      const yearInput = document.querySelector('input[name="installationDate-year"]');
+
+      const day = parseInt(dayInput.value) || 0;
+      const month = parseInt(monthInput.value) || 0;
+      const year = parseInt(yearInput.value) || 0;
+
+      if (!dayInput.value || !monthInput.value || !yearInput.value) {
+        event.preventDefault();
+        showError('Please enter a valid date with day, month, and year');
+        return false;
+      }
+
+      if (day < 1 || day > 31 || month < 1 || month > 12) {
+        event.preventDefault();
+        showError('Please enter a valid date');
+        return false;
+      }
+
+      const selectedDate = new Date(year, month - 1, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (selectedDate < today) {
+        event.preventDefault();
+        showError('The installation date cannot be in the past. Please select a date from today onwards.');
+        return false;
+      }
+
+      const maxDate = new Date();
+      maxDate.setFullYear(maxDate.getFullYear() + 5);
+
+      if (selectedDate > maxDate) {
+        event.preventDefault();
+        showError('The installation date cannot be more than 5 years in the future. Please select a date within the next 5 years.');
+        return false;
+      }
+
+      if (isHoliday(day, month)) {
+        event.preventDefault();
+        showError('Installation cannot be scheduled on a holiday. Please select a different date.');
+        return false;
+      }
+
+      clearError();
+    });
+  </script>
+
+{% endblock %}
