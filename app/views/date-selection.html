@@ -5,10 +5,19 @@
 {% endblock %}
 
 {% block beforeContent %}
-  {{ govukBackLink({
+  <!-- GOV.UK Phase banner -->
+{{ govukPhaseBanner({
+  tag: {
+    text: "Alpha"
+  },
+  html: 'This is a new service. Help us improve it and <a class="govuk-link" href="#">give your feedback by email</a>.'
+}) }}
+   {{ govukBackLink({
     text: "Back",
     href: "javascript:window.history.back()"
   }) }}
+
+
 {% endblock %}
 
 {% block content %}

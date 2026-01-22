@@ -196,10 +196,13 @@ router.get('/check-answers', (req, res) => {
   res.render('check-answers', { data: req.session.data })
 })
 
-router.get('/ineligible', (req, res) => res.render('ineligible'))
-router.get('/ineligible-business', (req, res) => res.render('ineligible-business'))
-router.get('/ineligible-property', (req, res) => res.render('ineligible-property'))
-router.get('/ineligible-commitment', (req, res) => res.render('ineligible-commitment'))
+router.get('/ineligible', (req, res) => {
+  res.render('ineligible', { 
+    data: req.session.data,
+    reason: req.session.data?.ineligibleReason || 'grid'
+  })
+})
+
 router.get('/confirmation', (req, res) => res.render('confirmation'))
 
 // -----------------------------
@@ -247,7 +250,9 @@ router.post('/contactPage', (req, res) => {
 
 router.post('/address', (req, res) => {
   if (!req.session.data) req.session.data = {}
+
   const { addressLine1, addressTown, addressPostcode } = req.body
+
   req.session.data.addressLine1 = addressLine1
   req.session.data.addressTown = addressTown
   req.session.data.addressPostcode = addressPostcode
@@ -257,6 +262,7 @@ router.post('/address', (req, res) => {
   delete req.session.data.addressPostcodeError
 
   const errors = []
+  const ukPostcodeRegex = /^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2})$/i
 
   if (!addressLine1 || addressLine1.trim() === '') {
     req.session.data.addressLine1Error = 'Enter address line 1'
@@ -271,15 +277,28 @@ router.post('/address', (req, res) => {
   if (!addressPostcode || addressPostcode.trim() === '') {
     req.session.data.addressPostcodeError = 'Enter a postcode'
     errors.push({ text: 'Enter a postcode', href: '#address-postcode' })
+  } else if (!ukPostcodeRegex.test(addressPostcode.trim())) {
+    req.session.data.addressPostcodeError = 'Enter a real UK postcode, like SW1A 1AA'
+    errors.push({
+      text: 'Enter a real UK postcode, like SW1A 1AA',
+      href: '#address-postcode'
+    })
   }
 
-  if (errors.length > 0) return res.render('address', { errors, data: req.session.data })
+  if (errors.length > 0) {
+    return res.render('address', {
+      errors,
+      data: req.session.data
+    })
+  }
 
   res.redirect('/nationalGrid')
 })
 
+
 router.post('/nationalGrid', (req, res) => {
   if (!req.session.data) req.session.data = {}
+
   const { contact, NationalGridRef } = req.body
   req.session.data.contact = contact
   req.session.data.NationalGridRef = NationalGridRef
@@ -290,19 +309,30 @@ router.post('/nationalGrid', (req, res) => {
   let hasErrors = false
 
   if (!contact) {
-    req.session.data.contactError = 'Select whether the property is linked to the national grid'
+    req.session.data.contactError =
+      'Select whether the property is linked to the national grid'
     hasErrors = true
   }
 
   if (contact === 'yes' && (!NationalGridRef || NationalGridRef.trim() === '')) {
-    req.session.data.nationalGridRefError = 'Enter the National Grid Reference Number'
+    req.session.data.nationalGridRefError =
+      'Enter the National Grid Reference Number'
     hasErrors = true
   }
 
-  if (hasErrors) return res.redirect('/nationalGrid')
+  if (hasErrors) {
+    return res.redirect('/nationalGrid')
+  }
+
+  // 👉 THIS is the redirect you want
+  if (contact === 'no') {
+    req.session.data.ineligibleReason = 'grid'
+    return res.redirect('/ineligible')
+  }
 
   res.redirect('/business')
 })
+
 
 router.post('/business', (req, res) => {
   if (!req.session.data) req.session.data = {}
@@ -316,7 +346,8 @@ router.post('/business', (req, res) => {
   }
 
   if (businessOwnership === 'no') {
-    return res.redirect('/ineligible-business')
+    req.session.data.ineligibleReason = 'business'
+    return res.redirect('/ineligible')
   }
 
   res.redirect('/property')
@@ -334,7 +365,8 @@ router.post('/property', (req, res) => {
   }
 
   if (ownership === 'no') {
-    return res.redirect('/ineligible-property')
+    req.session.data.ineligibleReason = 'property'
+    return res.redirect('/ineligible')
   }
 
   res.redirect('/additional-info')
@@ -354,7 +386,7 @@ router.post('/additional-info', (req, res) => {
   let hasErrors = false
   const availableSpaceNum = parseFloat(availableSpace)
   const turbineNumberNum = parseInt(turbineNumber)
-  const maxTurbines = Math.floor(availableSpaceNum / 200)
+  const maxTurbines = Math.min(4, Math.floor(availableSpaceNum / 200))
 
   if (isNaN(availableSpaceNum) || availableSpaceNum < 200) {
     req.session.data.availableSpaceError = 'Available space must be at least 200 square feet'
@@ -373,7 +405,8 @@ router.post('/additional-info', (req, res) => {
     req.session.data.commitmentError = 'Select whether you agree to maintain the wind turbine for 20 years'
     hasErrors = true
   } else if (commitment === 'no') {
-    return res.redirect('/ineligible-commitment')
+    req.session.data.ineligibleReason = 'commitment'
+    return res.redirect('/ineligible')
   }
 
   if (hasErrors) return res.redirect('/additional-info')

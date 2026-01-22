@@ -5,10 +5,19 @@
 {% endblock %}
 
 {% block beforeContent %}
-  {{ govukBackLink({
+  <!-- GOV.UK Phase banner -->
+{{ govukPhaseBanner({
+  tag: {
+    text: "Alpha"
+  },
+  html: 'This is a new service. Help us improve it and <a class="govuk-link" href="#">give your feedback by email</a>.'
+}) }}
+   {{ govukBackLink({
     text: "Back",
     href: "javascript:window.history.back()"
   }) }}
+
+
 {% endblock %}
 
 {% block content %}
@@ -16,31 +25,62 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
 
-
       {% from "govuk/components/panel/macro.njk" import govukPanel %}
 
-<style>
-  .govuk-panel-denied .govuk-panel {
-  background-color: #f3f2f1; 
-  color: #0b0c0c;            
-}
-</style>
+      <style>
+        .govuk-panel-denied .govuk-panel {
+          background-color: #f3f2f1; 
+          color: #0b0c0c;            
+        }
+      </style>
 
-<div class="govuk-panel-denied">
-  {{ govukPanel({
-    titleText: "You cannot apply for a Wind Turbine Assembly Grant"
-  }) }}
-</div>
+      <div class="govuk-panel-denied">
+        {{ govukPanel({
+          titleText: "You cannot apply for a Wind Turbine Assembly Grant"
+        }) }}
+      </div>
 
-<p> 
-  This property is not connected to the National Grid.
-</p>
+      {% if reason == 'grid' %}
+        <p>This property is not connected to the National Grid.</p>
 
-<h2 class="govuk-heading-m">What to do next</h2>
-<ul class="govuk-list govuk-list--bullet">
-  <li>Go to <a href= https://connections.nationalgrid.co.uk/get-connected/>Get connected</a> and go through the application process</li>
-  <li>Once your application has been accepted and your property has been connected you can reapply for this service</li>
-</ul>
+        <h2 class="govuk-heading-m">What to do next</h2>
+        <ul class="govuk-list govuk-list--bullet">
+          <li>Go to <a href="https://connections.nationalgrid.co.uk/get-connected/">Get connected</a> and go through the application process</li>
+          <li>Once your application has been accepted and your property has been connected you can reapply for this service</li>
+        </ul>
+
+      {% elif reason == 'business' %}
+        <p>You are not a business owner.</p>
+
+        <h2 class="govuk-heading-m">What to do next</h2>
+        <ul class="govuk-list govuk-list--bullet">
+          <li>Go to <a href="https://www.business.gov.uk/start/?gclsrc=aw.ds&gad_source=1&gad_campaignid=23304184246&gclid=EAIaIQobChMIxZWlu6mNkgMVoZuDBx0SVwhvEAAYAiAAEgLvTfD_BwE/">register a business</a> and go through the application process</li>
+          <li>Once you have created and registered your business you can reapply for this service</li>
+        </ul>
+
+      {% elif reason == 'property' %}
+        <p>The business does not own the property.</p>
+
+        <h2 class="govuk-heading-m">What to do next</h2>
+        <ul class="govuk-list govuk-list--bullet">
+          <li>Go to <a href="https://test.com/">transfer land to business</a> and go through the application process</li>
+          <li>Once your application has been accepted and the land is registered to your business you can reapply for this service</li>
+        </ul>
+
+      {% elif reason == 'commitment' %}
+        <p>To qualify for this grant, you must commit to maintaining and operating the wind turbine for a minimum of 20 years.</p>
+
+        <h2 class="govuk-heading-m">What to do next</h2>
+        <ul class="govuk-list govuk-list--bullet">
+          <li>Review the 20-year maintenance commitment requirements</li>
+          <li>Once you are able to commit to maintaining the turbine for 20 years, you can reapply for this service</li>
+        </ul>
+
+        <p>
+          For more information about the commitment requirements, <a href="https://www.find-government-grants.service.gov.uk/">view the grant requirements</a>.
+        </p>
+
+      {% endif %}
 
       <p>
         Read more <a href="/path/of/page">about this topic</a>.

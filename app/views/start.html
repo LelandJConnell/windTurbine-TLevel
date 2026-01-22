@@ -11,6 +11,15 @@
 
 {% block beforeContent %}
 
+
+{{ govukPhaseBanner({
+  tag: {
+    text: "Alpha"
+  },
+  html: 'This is a new service. Help us improve it and <a class="govuk-link" href="#">give your feedback by email</a>.'
+}) }}
+
+
   {{ govukBreadcrumbs({
     items: [
       {
@@ -70,7 +79,7 @@
         </li>      
 
         <li>
-          the details about the propert such as the size of it.
+          the details about the property such as the size of it.
         </li>
       </ul>
 
