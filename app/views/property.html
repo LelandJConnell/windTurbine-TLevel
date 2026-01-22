@@ -6,9 +6,9 @@
 
 {% block beforeContent %}
   {{ govukBackLink({
-  text: "Back",
-  href: "javascript:window.history.back()"
-}) }}
+    text: "Back",
+    href: "javascript:window.history.back()"
+  }) }}
 {% endblock %}
 
 {% block content %}
@@ -16,12 +16,16 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
 
+      {% if errors %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: errors
+        }) }}
+      {% endif %}
 
       <form class="form" action="/property" method="post">
 
-{% from "govuk/components/radios/macro.njk" import govukRadios %}
-
-
+        {% from "govuk/components/radios/macro.njk" import govukRadios %}
 
         {{ govukRadios({
           name: "ownership",
@@ -43,11 +47,8 @@
               text: "No"
             }
           ],
-          errorMessage: {
-            text: data.ownershipError
-          } if data.ownershipError else undefined
+          errorMessage: ownershipErrorMessage
         }) }}
-
 
         {{ govukButton({
           text: "Continue"

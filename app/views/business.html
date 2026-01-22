@@ -6,51 +6,51 @@
 
 {% block beforeContent %}
   {{ govukBackLink({
-  text: "Back",
-  href: "javascript:window.history.back()"
-}) }}
+    text: "Back",
+    href: "javascript:window.history.back()"
+  }) }}
 {% endblock %}
 
 {% block content %}
 
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+        {% if errors %}
+      {{ govukErrorSummary({
+        titleText: "There is a problem",
+        errorList: errors
+      }) }}
+    {% endif %}
+
+    <form class="form" action="/business" method="post">
+
+{{ govukRadios({
+  name: "businessOwnership",
+  idPrefix: "businessOwnership",
+  fieldset: {
+    legend: {
+      text: "Is the business owned by you?",
+      isPageHeading: true,
+      classes: "govuk-fieldset__legend--l"
+    }
+  },
+  value: data.businessOwnership,
+  items: [
+    { value: "yes", text: "Yes" },
+    { value: "no", text: "No" }
+  ],
+  errorMessage: businessOwnershipErrorMessage
+}) }}
 
 
-      <form class="form" action="/business" method="post">
+      {{ govukButton({
+        text: "Continue"
+      }) }}
 
-        {{ govukRadios({
-          name: "businessOwnership",
-          fieldset: {
-            legend: {
-              text: "Is the business owned by you?",
-              isPageHeading: true,
-              classes: "govuk-fieldset__legend--l"
-            }
-          },
-          value: data.businessOwnership,
-          items: [
-            {
-              value: "yes",
-              text: "Yes"
-            },
-            {
-              value: "no",
-              text: "No"
-            }
-          ],
-          errorMessage: {
-            text: data.businessOwnershipError
-          } if data.businessOwnershipError else undefined
-        }) }}
+    </form>
 
-        {{ govukButton({
-          text: "Continue"
-        }) }}
-
-      </form>
-
-    </div>
   </div>
+</div>
 
 {% endblock %}
