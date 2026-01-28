@@ -1,0 +1,52 @@
+{% extends "layouts/main.html" %}
+
+{% block pageTitle %}
+ {{ serviceName }} - Ineligible
+{% endblock %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: "Back",
+    href: "javascript:window.history.back()"
+  }) }}
+{% endblock %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+
+      {% from "govuk/components/panel/macro.njk" import govukPanel %}
+
+<style>
+  .govuk-panel-denied .govuk-panel {
+  background-color: #f3f2f1; 
+  color: #0b0c0c;            
+}
+</style>
+
+<div class="govuk-panel-denied">
+  {{ govukPanel({
+    titleText: "You cannot apply for a Wind Turbine Assembly Grant"
+  }) }}
+</div>
+
+<p> 
+  The business does not own the property.
+</p>
+
+<h2 class="govuk-heading-m">What to do next</h2>
+<ul class="govuk-list govuk-list--bullet">
+  <li>Go to <a href=test.com/>transfer land to business</a> and go through the application process</li>
+  <li>Once your application as been accepted and the land is registered to your business you can reapply for this service</li>
+</ul>
+
+      <p>
+        Read more <a href="/path/of/page">about this topic</a>.
+      </p>
+
+    </div>
+  </div>
+
+{% endblock %}

@@ -8,9 +8,48 @@ https://prototype-kit.service.gov.uk/docs/how-to-use-layouts
 
 {% block header %}
 
-    {{ govukHeader() }}
-    {{ govukServiceNavigation({
-        serviceName: serviceName
-    })}}
+  {# --- COOKIE BANNER --- #}
+  {% if not cookieConsent %}
+  <div class="govuk-cookie-banner" data-nosnippet role="region" aria-label="Cookies on {{ serviceName }}">
+    <div class="govuk-cookie-banner__message govuk-width-container">
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          <h2 class="govuk-cookie-banner__heading govuk-heading-m">
+            Cookies on {{ serviceName }}
+          </h2>
+          <div class="govuk-cookie-banner__content">
+            <p class="govuk-body">We use some essential cookies to make this service work.</p>
+            <p class="govuk-body">We’d also like to use cookies so we can understand how you use the service and make improvements.</p>
+          </div>
+        </div>
+      </div>
+      <div class="govuk-button-group">
+        <form method="POST" action="/cookie-consent">
+          <button name="consent" value="accept" type="submit" class="govuk-button">
+            Accept additional cookies
+          </button>
+          <button name="consent" value="reject" type="submit" class="govuk-button">
+            Reject additional cookies
+          </button>
+        </form>
+        <a class="govuk-link" href="/cookies">View cookies</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 
+  {# --- HEADER & NAV --- #}
+  {{ govukHeader() }}
+  {{ govukServiceNavigation({
+      serviceName: serviceName
+  })}}
+
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="https://unpkg.com/govuk-frontend/govuk/all.js"></script>
+  <script>
+    window.GOVUKFrontend.initAll()
+  </script>
 {% endblock %}

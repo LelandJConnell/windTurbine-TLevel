@@ -1,22 +1,26 @@
 //
-// For guidance on how to create routes see:
-// https://prototype-kit.service.gov.uk/docs/create-routes
+// routes.js
+// Prototype Kit routes with cookie consent fully integrated
 //
 
 const govukPrototypeKit = require('govuk-prototype-kit')
 const router = govukPrototypeKit.requests.setupRouter()
 
 // -----------------------------
+// Middleware to expose cookieConsent to templates
+// -----------------------------
+router.use((req, res, next) => {
+  res.locals.cookieConsent = req.session.cookieConsent || null
+  next()
+})
+
+// -----------------------------
 // GET routes
 // -----------------------------
-
-router.get('/start', (req, res) => {
-  res.render('start')
-})
+router.get('/start', (req, res) => res.render('start'))
 
 router.get('/contactPage', (req, res) => {
   const errors = []
-
   let fullNameErrorMessage = null
   let phoneNumberErrorMessage = null
   let emailErrorMessage = null
@@ -48,7 +52,6 @@ router.get('/contactPage', (req, res) => {
   })
 })
 
-
 router.get('/address', (req, res) => {
   const errors = []
 
@@ -56,12 +59,10 @@ router.get('/address', (req, res) => {
     errors.push({ text: req.session.data.addressLine1Error, href: '#address-line-1' })
     delete req.session.data.addressLine1Error
   }
-
   if (req.session.data?.addressTownError) {
     errors.push({ text: req.session.data.addressTownError, href: '#address-town' })
     delete req.session.data.addressTownError
   }
-
   if (req.session.data?.addressPostcodeError) {
     errors.push({ text: req.session.data.addressPostcodeError, href: '#address-postcode' })
     delete req.session.data.addressPostcodeError
@@ -75,7 +76,6 @@ router.get('/address', (req, res) => {
 
 router.get('/nationalGrid', (req, res) => {
   const errors = []
-
   let contactErrorMessage = null
   let nationalGridRefErrorMessage = null
 
@@ -101,14 +101,10 @@ router.get('/nationalGrid', (req, res) => {
 
 router.get('/business', (req, res) => {
   const errors = []
-
   let businessOwnershipErrorMessage = null
 
   if (req.session.data?.businessOwnershipError) {
-    errors.push({
-      text: req.session.data.businessOwnershipError,
-      href: '#businessOwnership'
-    })
+    errors.push({ text: req.session.data.businessOwnershipError, href: '#businessOwnership' })
     businessOwnershipErrorMessage = { text: req.session.data.businessOwnershipError }
     delete req.session.data.businessOwnershipError
   }
@@ -120,11 +116,8 @@ router.get('/business', (req, res) => {
   })
 })
 
-
-
 router.get('/property', (req, res) => {
   const errors = []
-
   let ownershipErrorMessage = null
 
   if (req.session.data?.ownershipError) {
@@ -142,7 +135,6 @@ router.get('/property', (req, res) => {
 
 router.get('/additional-info', (req, res) => {
   const errors = []
-
   let availableSpaceErrorMessage = null
   let turbineNumberErrorMessage = null
   let commitmentErrorMessage = null
@@ -176,7 +168,6 @@ router.get('/additional-info', (req, res) => {
 
 router.get('/date-selection', (req, res) => {
   const errors = []
-
   let dateErrorMessage = null
 
   if (req.session.data?.dateError) {
@@ -192,28 +183,33 @@ router.get('/date-selection', (req, res) => {
   })
 })
 
-router.get('/check-answers', (req, res) => {
-  res.render('check-answers', { data: req.session.data })
-})
+router.get('/check-answers', (req, res) => res.render('check-answers', { data: req.session.data }))
 
-router.get('/ineligible', (req, res) => {
-  res.render('ineligible', { 
-    data: req.session.data,
-    reason: req.session.data?.ineligibleReason || 'grid'
-  })
-})
+router.get('/ineligible', (req, res) => res.render('ineligible', { 
+  data: req.session.data,
+  reason: req.session.data?.ineligibleReason || 'grid'
+}))
 
 router.get('/confirmation', (req, res) => res.render('confirmation'))
 
 // -----------------------------
-// POST routes
+// POST route for cookie consent
 // -----------------------------
+router.post('/cookie-consent', (req, res) => {
+  if (!req.session.data) req.session.data = {}
+  req.session.cookieConsent = req.body.consent // 'accept' or 'reject'
 
+  const redirectUrl = req.headers.referer || '/'
+  res.redirect(redirectUrl)
+})
+
+// -----------------------------
+// POST routes for forms
+// -----------------------------
 router.post('/contactPage', (req, res) => {
   if (!req.session.data) req.session.data = {}
 
   const { fullName, phoneNumber, email } = req.body
-
   req.session.data.fullName = fullName
   req.session.data.phoneNumber = phoneNumber
   req.session.data.email = email
@@ -223,6 +219,7 @@ router.post('/contactPage', (req, res) => {
   delete req.session.data.emailError
 
   let hasErrors = false
+  const errors = []
 
   if (!fullName || fullName.trim() === '') {
     req.session.data.fullNameError = 'Enter your full name'
@@ -238,8 +235,7 @@ router.post('/contactPage', (req, res) => {
     req.session.data.emailError = 'Enter your email address'
     hasErrors = true
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    req.session.data.emailError =
-      'Enter an email address in the correct format, like name@example.com'
+    req.session.data.emailError = 'Enter a valid email address'
     hasErrors = true
   }
 
@@ -248,9 +244,11 @@ router.post('/contactPage', (req, res) => {
   res.redirect('/address')
 })
 
+// -----------------------------
+// POST /address
+// -----------------------------
 router.post('/address', (req, res) => {
   if (!req.session.data) req.session.data = {}
-
   const { addressLine1, addressTown, addressPostcode } = req.body
 
   req.session.data.addressLine1 = addressLine1
@@ -268,63 +266,46 @@ router.post('/address', (req, res) => {
     req.session.data.addressLine1Error = 'Enter address line 1'
     errors.push({ text: 'Enter address line 1', href: '#address-line-1' })
   }
-
   if (!addressTown || addressTown.trim() === '') {
     req.session.data.addressTownError = 'Enter a town or city'
     errors.push({ text: 'Enter a town or city', href: '#address-town' })
   }
-
   if (!addressPostcode || addressPostcode.trim() === '') {
     req.session.data.addressPostcodeError = 'Enter a postcode'
     errors.push({ text: 'Enter a postcode', href: '#address-postcode' })
   } else if (!ukPostcodeRegex.test(addressPostcode.trim())) {
     req.session.data.addressPostcodeError = 'Enter a real UK postcode, like SW1A 1AA'
-    errors.push({
-      text: 'Enter a real UK postcode, like SW1A 1AA',
-      href: '#address-postcode'
-    })
+    errors.push({ text: 'Enter a real UK postcode, like SW1A 1AA', href: '#address-postcode' })
   }
 
-  if (errors.length > 0) {
-    return res.render('address', {
-      errors,
-      data: req.session.data
-    })
-  }
+  if (errors.length > 0) return res.render('address', { errors, data: req.session.data })
 
   res.redirect('/nationalGrid')
 })
 
-
+// -----------------------------
+// POST /nationalGrid
+// -----------------------------
 router.post('/nationalGrid', (req, res) => {
   if (!req.session.data) req.session.data = {}
-
   const { contact, NationalGridRef } = req.body
+
   req.session.data.contact = contact
   req.session.data.NationalGridRef = NationalGridRef
 
   delete req.session.data.contactError
   delete req.session.data.nationalGridRefError
 
-  let hasErrors = false
-
   if (!contact) {
-    req.session.data.contactError =
-      'Select whether the property is linked to the national grid'
-    hasErrors = true
-  }
-
-  if (contact === 'yes' && (!NationalGridRef || NationalGridRef.trim() === '')) {
-    req.session.data.nationalGridRefError =
-      'Enter the National Grid Reference Number'
-    hasErrors = true
-  }
-
-  if (hasErrors) {
+    req.session.data.contactError = 'Select whether the property is linked to the national grid'
     return res.redirect('/nationalGrid')
   }
 
-  // 👉 THIS is the redirect you want
+  if (contact === 'yes' && (!NationalGridRef || NationalGridRef.trim() === '')) {
+    req.session.data.nationalGridRefError = 'Enter the National Grid Reference Number'
+    return res.redirect('/nationalGrid')
+  }
+
   if (contact === 'no') {
     req.session.data.ineligibleReason = 'grid'
     return res.redirect('/ineligible')
@@ -333,7 +314,9 @@ router.post('/nationalGrid', (req, res) => {
   res.redirect('/business')
 })
 
-
+// -----------------------------
+// POST /business
+// -----------------------------
 router.post('/business', (req, res) => {
   if (!req.session.data) req.session.data = {}
   const { businessOwnership } = req.body
@@ -353,6 +336,9 @@ router.post('/business', (req, res) => {
   res.redirect('/property')
 })
 
+// -----------------------------
+// POST /property
+// -----------------------------
 router.post('/property', (req, res) => {
   if (!req.session.data) req.session.data = {}
   const { ownership } = req.body
@@ -372,9 +358,13 @@ router.post('/property', (req, res) => {
   res.redirect('/additional-info')
 })
 
+// -----------------------------
+// POST /additional-info
+// -----------------------------
 router.post('/additional-info', (req, res) => {
   if (!req.session.data) req.session.data = {}
   const { availableSpace, turbineNumber, commitment } = req.body
+
   req.session.data.availableSpace = availableSpace
   req.session.data.turbineNumber = turbineNumber
   req.session.data.commitment = commitment
@@ -414,6 +404,9 @@ router.post('/additional-info', (req, res) => {
   res.redirect('/date-selection')
 })
 
+// -----------------------------
+// POST /date-selection
+// -----------------------------
 router.post('/date-selection', (req, res) => {
   if (!req.session.data) req.session.data = {}
 
@@ -433,18 +426,13 @@ router.post('/date-selection', (req, res) => {
   }
 
   const date = new Date(year, month - 1, day)
-  if (
-    date.getDate() !== day ||
-    date.getMonth() !== (month - 1) ||
-    date.getFullYear() !== year
-  ) {
+  if (date.getDate() !== day || date.getMonth() !== month - 1 || date.getFullYear() !== year) {
     req.session.data.dateError = 'Enter a valid date'
     return res.redirect('/date-selection')
   }
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-
   if (date < today) {
     req.session.data.dateError = 'Installation date must be in the future'
     return res.redirect('/date-selection')
@@ -452,7 +440,6 @@ router.post('/date-selection', (req, res) => {
 
   const maxDate = new Date()
   maxDate.setFullYear(maxDate.getFullYear() + 5)
-
   if (date > maxDate) {
     req.session.data.dateError = 'Installation date cannot be more than 5 years in the future'
     return res.redirect('/date-selection')
@@ -461,6 +448,9 @@ router.post('/date-selection', (req, res) => {
   res.redirect('/check-answers')
 })
 
+// -----------------------------
+// POST /check-answers
+// -----------------------------
 router.post('/check-answers', (req, res) => {
   res.redirect('/confirmation')
 })
